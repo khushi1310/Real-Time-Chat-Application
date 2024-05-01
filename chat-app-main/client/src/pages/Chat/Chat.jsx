@@ -132,6 +132,7 @@ const Chat = () => {
           currentUser={user._id}
           setSendMessage={setSendMessage}
           receivedMessage={receivedMessage}
+          onlineUsers={onlineUsers}
         />
       </div>
     </div>

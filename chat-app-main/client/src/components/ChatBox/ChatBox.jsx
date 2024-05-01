@@ -139,7 +139,7 @@ useEffect(()=> {
             <div className="chat-header">
               <div className="follower">
                 <div>
-                  <img
+                  {/* <img
                     src={
                       userData?.profilePicture
                         ? process.env.REACT_APP_PUBLIC_FOLDER +
@@ -150,7 +150,7 @@ useEffect(()=> {
                     alt="Profile"
                     className="followerImage"
                     style={{ width: "50px", height: "50px" }}
-                  />
+                  /> */}
                   <div className="name" style={{ fontSize: "0.9rem" }}>
                     <span>
                       {userData?.firstname} {userData?.lastname}

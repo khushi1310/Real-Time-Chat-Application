@@ -29,14 +29,14 @@ const Conversation = ({ data, currentUser , online}) => {
     <>
       <div className="follower conversation">
         <div>
-          {online && <div className="online-dot"></div>}
+          {online}
           <div style={{"display": "flex", flexDirection: "column"}}>
-            <img
+            {/* <img
               src={userData?.profilePicture? process.env.REACT_APP_PUBLIC_FOLDER + userData.profilePicture : process.env.REACT_APP_PUBLIC_FOLDER + "defaultProfile.png"}
               alt="Profile"
               className="followerImage"
               style={{ width: "50px", height: "50px" }}
-              />
+              /> */}
             <span>{userData?.firstname} {userData?.lastname}</span>
             <div className="name" style={{fontSize: '0.8rem'}}>
               <span style={{color: online?"#51e200":""}}>{online? "Online" : "Offline"}</span>
