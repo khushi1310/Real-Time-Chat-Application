@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getUser } from "../../api/UserRequests";
-const Conversation = ({ data, currentUser, online }) => {
+const Conversation = ({ data, currentUser , online}) => {
 
   const [userData, setUserData] = useState(null)
   const dispatch = useDispatch()

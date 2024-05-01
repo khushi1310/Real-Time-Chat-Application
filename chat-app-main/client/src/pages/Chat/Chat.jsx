@@ -8,21 +8,38 @@ import { userChats } from "../../api/ChatRequests";
 import { useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import { logout } from "../../actions/AuthActions";
+import { FaCheck } from 'react-icons/fa';
 
 const Chat = () => {
   const dispatch = useDispatch();
   const socket = useRef();
   const { user } = useSelector((state) => state.authReducer.authData);
-
+  //console.log(user);
   const [chats, setChats] = useState([]);
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [currentChat, setCurrentChat] = useState(null);
   const [sendMessage, setSendMessage] = useState(null);
   const [receivedMessage, setReceivedMessage] = useState(null);
+  const [activeButton, setActiveButton] = useState(null);
 
   function handleLogOut() {
     dispatch(logout());
   }
+
+  function handleActive() {
+    setActiveButton("active");
+    socket.current.emit("new-user-add", user._id);
+    socket.current.on("get-users", (users) => {
+      setOnlineUsers(users);
+    });
+  }
+
+  function handleBusy() {
+    setActiveButton("busy");
+    socket.current.emit("user-disconnect");
+    console.log("busy btn clicked!!");
+  }
+
   // Get the chat in chat section
   useEffect(() => {
     console.log("HII", user)
@@ -101,9 +118,15 @@ const Chat = () => {
       {/* Right Side */}
 
       <div className="Right-side-chat">
-        <div style={{ alignSelf: "flex-end" }}>
-          <button className="button logout-button" onClick={handleLogOut}>Log Out</button>
-        </div>
+      <div className="flex justify-end space-x-4 classx">
+        <button className={`button busy-button ${activeButton === "busy" ? "active" : ""}`} onClick={handleBusy}>
+        Busy {activeButton === "busy" && <FaCheck className="ml-1" />} {/* Render the check icon when active */}
+        </button>
+        <button className={`button active-button ${activeButton === "active" ? "active" : ""}`} onClick={handleActive}>
+        Active {activeButton === "active" && <FaCheck className="ml-1" />} {/* Render the check icon when active */}
+        </button>
+        <button className="button logout-button" onClick={handleLogOut}>Log Out</button>
+      </div>
         <ChatBox
           chat={currentChat}
           currentUser={user._id}

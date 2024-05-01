@@ -76,5 +76,37 @@
 }
 
 .logout-button{
+  --buttonBg: linear-gradient(98.63deg, #f9a225 0%, #f95f35 100%);
+}
+
+
+/* styles.css or any other CSS file */
+.button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
   margin: 6px;
+}
+
+.active-button {
+  --buttonBg: green;
+  color: white;
+}
+
+.busy-button {
+  --buttonBg: gray;
+  color: black;
+}
+
+.active-button:focus {
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}
+
+.active-button:active {
+  transform: translateY(1px);
+}
+
+.classx{
+  flex-direction: row;
+  display: flex;
 }
