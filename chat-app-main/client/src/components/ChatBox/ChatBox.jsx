@@ -5,12 +5,16 @@ import { getUser } from "../../api/UserRequests";
 import "./ChatBox.css";
 import { format } from "timeago.js";
 import InputEmoji from 'react-input-emoji'
+import { io } from "socket.io-client";
 
-const ChatBox = ({ chat, currentUser, setSendMessage,  receivedMessage }) => {
+
+const ChatBox = ({ chat, currentUser, setSendMessage,  receivedMessage}) => {
   console.log(receivedMessage)
   const [userData, setUserData] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const socket = useRef();
 
   const handleChange = (newMessage)=> {
     setNewMessage(newMessage)
@@ -18,6 +22,10 @@ const ChatBox = ({ chat, currentUser, setSendMessage,  receivedMessage }) => {
 
   // fetching data for header
   useEffect(() => {
+    // socket.current = io("ws://localhost:8800");
+    // socket.current.on("get-users", (users) => {
+    //   setOnlineUsers(users);
+    // });
     const userId = chat?.members?.find((id) => id !== currentUser);
     const getUserData = async () => {
       try {
@@ -34,6 +42,10 @@ const ChatBox = ({ chat, currentUser, setSendMessage,  receivedMessage }) => {
 
   // fetch messages
   useEffect(() => {
+    socket.current = io("ws://localhost:8800");
+    socket.current.on("get-users", (users) => {
+      setOnlineUsers(users);
+    });
     const fetchMessages = async () => {
       try {
         const { data } = await getMessages(chat._id);
@@ -49,33 +61,61 @@ const ChatBox = ({ chat, currentUser, setSendMessage,  receivedMessage }) => {
 
   // Always scroll to last Message
   useEffect(()=> {
+    // socket.current = io("ws://localhost:8800");
+    // socket.current.on("get-users", (users) => {
+    //   setOnlineUsers(users);
+    // });
     scroll.current?.scrollIntoView({ behavior: "smooth" });
   },[messages])
 
 
 
-  // Send Message
-  const handleSend = async(e)=> {
-    e.preventDefault()
-    const message = {
-      senderId : currentUser,
-      text: newMessage,
-      chatId: chat._id,
-  }
-  const receiverId = chat.members.find((id)=>id!==currentUser);
-  // send message to socket server
-  setSendMessage({...message, receiverId})
-  // send message to database
+// Function to send the message
+const sendMessage = async (message, receiverId) => {
   try {
     const { data } = await addMessage(message);
     setMessages([...messages, data]);
     setNewMessage("");
+  } catch (error) {
+    console.log("error", error);
   }
-  catch
-  {
-    console.log("error")
+};
+
+// Function to send the default message if recipient is not online
+const sendDefaultMessage = async (message, receiverId) => {
+  setTimeout(async () => {
+    const draftMessage = {
+      senderId: receiverId,
+      text: "The user is currently unavailable. Please try again later.",
+      chatId: message.chatId,
+    };
+    setMessages([...messages, draftMessage]);
+  }, 10000); // 10 seconds timeout
+};
+
+// Send Message
+const handleSend = async (e) => {
+  e.preventDefault();
+  const message = {
+    senderId: currentUser,
+    text: newMessage,
+    chatId: chat._id,
+  };
+  const receiverId = chat.members.find((id) => id !== currentUser);
+  const recipientActive = onlineUsers.some((user) => user.userId === receiverId);
+
+  // Send message to socket server
+  setSendMessage({ ...message, receiverId });
+
+  // Send message to database
+  await sendMessage(message, receiverId);
+
+  // If recipient is not in the active users list, send a draft message after a timeout
+  if (!recipientActive) {
+    await sendDefaultMessage(message, receiverId);
   }
-}
+};
+
 
 // Receive Message from parent component
 useEffect(()=> {
